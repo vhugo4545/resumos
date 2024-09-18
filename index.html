@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesquisa de Produtos</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<style>
+    /* Estilos para impressão */
+    @media print {
+        /* Ocultar elementos indesejados na impressão */
+        #printButton, #searchInput, #productTableBody, #productSearchSection, .table-bordered.mt-3, .remove-product {
+            display: none;
+        }
+
+        /* Ocultar a coluna de ação */
+        .table th:last-child, .table td:last-child {
+            display: none;
+        }
+
+        /* Ajustar layout para duas colunas durante a impressão */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .col-md-6 {
+            flex: 0 0 50%;
+            max-width: 50%;
+        }
+    }
+</style>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Pesquisa de Produtos</h1>
+        
+        <!-- Primeira seção de campos -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="hallInput">Salão:</label>
+                    <input type="text" id="hallInput" class="form-control" placeholder="Nome do Salão">
+                </div>
+                
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="hallInput">Nome do:</label>
+                    <input type="text" id="hallInput" class="form-control" placeholder="Nome do Salão">
+                </div>
+                
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="sellerInput">Vendedor:</label>
+                    <input type="text" id="sellerInput" class="form-control" placeholder="Nome do Vendedor">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="eventDate">Data do Evento:</label>
+                    <input type="date" id="eventDate" class="form-control">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="subscriptionDate">Data de Assinatura:</label>
+                    <input type="date" id="subscriptionDate" class="form-control">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="leadOrigin">Origem do Lead:</label>
+                    <input type="text" id="leadOrigin" class="form-control" placeholder="Campanha, Pacote etc">
+                </div>
+            </div>
+        </div>
+
+        <!-- Linha divisória -->
+        <hr>
+
+        <!-- Segunda seção de campos -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="soldValue">Valor Vendido:</label>
+                    <input type="number" id="soldValue" class="form-control" placeholder="Valor Vendido">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="tableValue">Valor de Tabela:</label>
+                    <input type="number" id="tableValue" class="form-control" placeholder="Valor de Tabela">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="searchInput">Pesquisar Produtos:</label>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Pesquisar produtos...">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="guestsInput">Número de Convidados:</label>
+                    <input type="number" id="guestsInput" class="form-control" placeholder="Número de Convidados">
+                </div>
+            </div>
+        </div>
+
+        <!-- Checkboxes para incluir buffet e decoração -->
+        <hr>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="includeBuffet">
+                    <label class="form-check-label" for="includeBuffet">Incluir Buffet</label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="includeDecoration">
+                    <label class="form-check-label" for="includeDecoration">Incluir Decoração</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de produtos -->
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Descrição</th>
+                    <th>Preço</th>
+                    <th>Custo</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody id="productTableBody">
+                <!-- As linhas de produtos serão inseridas aqui -->
+            </tbody>
+        </table>
+
+        <!-- Campos de soma de custos e valores de venda -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="totalCost">Soma dos Custos:</label>
+                    <input type="text" id="totalCost" class="form-control" readonly>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="totalPrice">Soma dos Valores de Venda:</label>
+                    <input type="text" id="totalPrice" class="form-control" readonly>
+                </div>
+            </div>
+        </div>
+
+        <!-- Terceira seção de campos -->
+        <hr>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="differenceValue">Diferença (Valor Vendido - Soma dos Valores de Venda):</label>
+                    <input type="text" id="differenceValue" class="form-control" readonly>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="percentageDifference">Diferença em Porcentagem (%):</label>
+                    <input type="text" id="percentageDifference" class="form-control" readonly>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de Produtos Adicionados -->
+        <h2 class="mt-5">Produtos Adicionados</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Custo</th>
+                    <th>Preço</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody id="addedProductsTableBody">
+                <!-- As linhas dos produtos adicionados serão inseridas aqui -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="includeModal" tabindex="-1" role="dialog" aria-labelledby="includeModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="includeModalLabel">Incluir Produto</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="productInfo"></p>
+                    <button class="btn btn-success" id="btnCortesia">Incluir como Cortesia</button>
+                    <button class="btn btn-primary" id="btnVendido">Incluir como Vendido</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Bootstrap and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        let products = [];
+        let currentProduct = null;
+
+        // Buscar produtos da API
+        async function fetchProducts() {
+            try {
+                const response = await fetch('https://novo-nome-do-app-ba5a0bbd9a20.herokuapp.com/api/products');
+                products = await response.json();
+            } catch (error) {
+                console.error('Erro ao buscar produtos:', error);
+            }
+        }
+
+        // Renderizar produtos na tabela
+        function renderProducts(filteredProducts) {
+            const productTableBody = document.getElementById('productTableBody');
+            productTableBody.innerHTML = '';
+
+            filteredProducts.forEach(product => {
+                const row = document.createElement('tr');
+
+                // Calcular o preço e custo com base em isUnitary, número de convidados e ano do evento
+                let numberOfGuests = parseInt(document.getElementById('guestsInput').value) || 1;
+                let price = product.price;
+                let cost = product.cost;
+
+                // Ajustar preço e custo com base no ano do evento
+                const eventDate = document.getElementById('eventDate').value;
+                if (eventDate) {
+                    const eventYear = new Date(eventDate).getFullYear();
+                    if (eventYear === 2025) {
+                        price *= 1.1; // Acrescenta 10% para 2025
+                        cost *= 1.1;
+                    } else if (eventYear === 2026) {
+                        price *= 1.21; // Acrescenta 10% sobre o valor de 2025
+                        cost *= 1.21;
+                    }
+                }
+
+                if (!product.isUnitary) {
+                    price *= numberOfGuests;
+                    cost *= numberOfGuests;
+                }
+
+                row.innerHTML = `
+                    <td>${product.name}</td>
+                    <td>${product.description}</td>
+                    <td>${price.toFixed(2)}</td>
+                    <td>${cost.toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="openIncludeModal('${product._id}', '${product.name}', ${cost}, ${price})">Incluir</button>
+                    </td>
+                `;
+
+                productTableBody.appendChild(row);
+            });
+
+            // Verificar se Buffet ou Decoração foram incluídos
+            addBuffetAndDecoration();
+        }
+
+        // Adicionar Buffet e Decoração se os checkboxes estiverem marcados
+        function addBuffetAndDecoration() {
+            const addedProductsTableBody = document.getElementById('addedProductsTableBody');
+            const numberOfGuests = parseInt(document.getElementById('guestsInput').value) || 0;
+            const eventDate = document.getElementById('eventDate').value;
+
+            // Limpar itens existentes de Buffet e Decoração para evitar duplicação
+            const currentRows = addedProductsTableBody.querySelectorAll('tr');
+            currentRows.forEach(row => {
+                if (row.dataset.type === 'buffet' || row.dataset.type === 'decoration') {
+                    row.remove();
+                }
+            });
+
+            // Calcular preços e custos para Buffet
+            if (document.getElementById('includeBuffet').checked) {
+                let buffetPrice = 121 * numberOfGuests;
+                let buffetCost = 80 * numberOfGuests;
+
+                // Ajustar preço e custo com base no ano do evento
+                if (eventDate) {
+                    const eventYear = new Date(eventDate).getFullYear();
+                    if (eventYear === 2025) {
+                        buffetPrice *= 1.1;
+                        buffetCost *= 1.1;
+                    } else if (eventYear === 2026) {
+                        buffetPrice *= 1.21;
+                        buffetCost *= 1.21;
+                    }
+                }
+
+                // Adicionar Buffet à tabela de produtos adicionados
+                const buffetRow = document.createElement('tr');
+                buffetRow.dataset.type = 'buffet';
+                buffetRow.innerHTML = `
+                    <td>Buffet</td>
+                    <td>${buffetCost.toFixed(2)}</td>
+                    <td>${buffetPrice.toFixed(2)}</td>
+                    <td><button class="close remove-product" onclick="removeProduct(this)">&times;</button></td>
+                `;
+                addedProductsTableBody.appendChild(buffetRow);
+            }
+
+            // Calcular preços e custos para Decoração
+            if (document.getElementById('includeDecoration').checked) {
+                let decorationPrice = 3100 + 2610 + (((0.8 * numberOfGuests / 10)-1) * 159.50);
+                let decorationCost = 2172.16 + 1310.16 + (((0.8 * numberOfGuests / 10)-1) * 111.24);
+
+                // Ajustar preço e custo com base no ano do evento
+                if (eventDate) {
+                    const eventYear = new Date(eventDate).getFullYear();
+                    if (eventYear === 2025) {
+                        decorationPrice *= 1.1;
+                        decorationCost *= 1.1;
+                    } else if (eventYear === 2026) {
+                        decorationPrice *= 1.21;
+                        decorationCost *= 1.21;
+                    }
+                }
+
+                // Adicionar Decoração à tabela de produtos adicionados
+                const decorationRow = document.createElement('tr');
+                decorationRow.dataset.type = 'decoration';
+                decorationRow.innerHTML = `
+                    <td>Decoração</td>
+                    <td>${decorationCost.toFixed(2)}</td>
+                    <td>${decorationPrice.toFixed(2)}</td>
+                    <td><button class="close remove-product" onclick="removeProduct(this)">&times;</button></td>
+                `;
+                addedProductsTableBody.appendChild(decorationRow);
+            }
+
+            // Atualizar os somatórios
+            updateSums();
+        }
+
+        // Abrir o modal
+        function openIncludeModal(id, name, cost, price) {
+            currentProduct = { id, name, cost, price };
+            document.getElementById('productInfo').innerText = `Você deseja incluir "${name}" como cortesia ou como vendido?`;
+            $('#includeModal').modal('show');
+        }
+
+        // Gerenciar o clique do botão de incluir
+        function handleInclude(choice) {
+            let { name, cost, price } = currentProduct;
+            
+            if (choice === 'cortesia') { // Cortesia
+                price = 0.00;
+            }
+
+            // Adicionar produto à tabela de produtos adicionados
+            addProductToTable(name, cost, price);
+            $('#includeModal').modal('hide');
+
+            // Atualizar somatórios
+            updateSums();
+        }
+
+        // Adicionar produto à tabela de produtos adicionados
+        function addProductToTable(name, cost, price) {
+            const addedProductsTableBody = document.getElementById('addedProductsTableBody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${name}</td>
+                <td>${cost.toFixed(2)}</td>
+                <td>${price.toFixed(2)}</td>
+                <td><button class="close remove-product" onclick="removeProduct(this)">&times;</button></td>
+            `;
+            addedProductsTableBody.appendChild(row);
+        }
+
+        // Remover produto da tabela
+        function removeProduct(element) {
+            const row = element.parentElement.parentElement;
+            row.remove();
+            updateSums();
+        }
+
+        // Atualizar os campos de soma de custos, valores de venda e diferença
+        function updateSums() {
+            const rows = document.querySelectorAll('#addedProductsTableBody tr');
+            let totalCost = 0;
+            let totalPrice = 0;
+
+            rows.forEach(row => {
+                const cost = parseFloat(row.children[1].textContent);
+                const price = parseFloat(row.children[2].textContent);
+
+                totalCost += cost;
+                totalPrice += price;
+            });
+
+            document.getElementById('totalCost').value = totalCost.toFixed(2);
+            document.getElementById('totalPrice').value = totalPrice.toFixed(2);
+
+            // Calcular a diferença entre o Valor Vendido e a Soma dos Valores de Venda
+            const soldValue = parseFloat(document.getElementById('soldValue').value) || 0;
+            const difference = soldValue - totalPrice;
+            document.getElementById('differenceValue').value = difference.toFixed(2);
+
+            // Calcular a diferença em porcentagem
+            const percentageDifference = (difference / totalPrice) * 100;
+            document.getElementById('percentageDifference').value = isNaN(percentageDifference) ? '0.00%' : percentageDifference.toFixed(2) + '%';
+        }
+
+        // Inicializar a aplicação
+        async function init() {
+            await fetchProducts();
+
+            // Listener para o campo de pesquisa
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                if (query === '') {
+                    // Limpar a tabela de produtos quando a pesquisa estiver vazia
+                    document.getElementById('productTableBody').innerHTML = '';
+                } else {
+                    const filteredProducts = products.filter(product => 
+                        product.name.toLowerCase().includes(query) || 
+                        product.description.toLowerCase().includes(query)
+                    );
+                    renderProducts(filteredProducts);
+                }
+            });
+
+            // Listener para o campo de número de convidados
+            document.getElementById('guestsInput').addEventListener('input', () => {
+                const query = document.getElementById('searchInput').value.toLowerCase();
+                const filteredProducts = products.filter(product => 
+                    product.name.toLowerCase().includes(query) || 
+                    product.description.toLowerCase().includes(query)
+                );
+                renderProducts(filteredProducts);
+            });
+
+            // Listener para o campo de data do evento
+            document.getElementById('eventDate').addEventListener('input', () => {
+                const query = document.getElementById('searchInput').value.toLowerCase();
+                const filteredProducts = products.filter(product => 
+                    product.name.toLowerCase().includes(query) || 
+                    product.description.toLowerCase().includes(query)
+                );
+                renderProducts(filteredProducts);
+            });
+
+            // Listeners para os checkboxes
+            document.getElementById('includeBuffet').addEventListener('change', addBuffetAndDecoration);
+            document.getElementById('includeDecoration').addEventListener('change', addBuffetAndDecoration);
+
+            // Listener para atualizar a diferença e porcentagem ao mudar o Valor Vendido
+            document.getElementById('soldValue').addEventListener('input', updateSums);
+
+            // Listeners para os botões do modal
+            document.getElementById('btnCortesia').addEventListener('click', () => handleInclude('cortesia'));
+            document.getElementById('btnVendido').addEventListener('click', () => handleInclude('vendido'));
+        }
+
+        // Executar a inicialização
+        init();
+    </script>
+</body>
+</html>
